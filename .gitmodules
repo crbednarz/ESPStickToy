@@ -1,0 +1,4 @@
+[submodule "common"]
+	path = common
+	url = https://github.com/skiphs/ESP32Common.git
+	branch = master
