@@ -1,4 +1,3 @@
-set(COMPONENT_SRCS "Program.cpp")
-set(COMPONENT_ADD_INCLUDEDIRS "")
+include("../common/utilities.cmake")
 
-register_component()
+setup_module(main)
