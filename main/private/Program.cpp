@@ -1,41 +1,65 @@
-/* Hello World Example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
-#include <stdio.h>
+#include "Program.hpp"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
-#include <gsl.hpp>
+#include "App.hpp"
+#include "Stopwatch.hpp"
+#include "I2CDevice.hpp"
+#include <stdint.h>
 
 
+void Program::launch()
+{
+	I2CDevice::initialize();
+
+	Stopwatch stopwatch;
+	App app;
+
+	xTaskCreatePinnedToCore(reinterpret_cast<TaskFunction_t>(&altCoreThreadEntry), "AltCoreThread", 2048, NULL, 25, NULL, 1);
+
+	printf("RAM left %d\n", esp_get_free_heap_size());
+	while (true) 
+	{
+		stopwatch.start();
+		app.update();
+		stopwatch.stop();
+	
+		if (stopwatch.recordCount() == 100)
+		{
+			auto averageTimeElapsed = stopwatch.averageTime();
+			printf("Average Frame Time: %ffps\n", 1.0 / averageTimeElapsed);
+			stopwatch.reset();
+		}
+	}
+
+	app.stop();
+	
+	while (true)
+	{
+
+	}
+}
+
+void Program::altCoreThreadEntry()
+{
+	while (true)
+	{
+
+	}
+}
+
+/*
+// This is to avoid potential calls to new: It'll create a compile-time error.
+void* operator_new_blocker();
+
+void* operator new(size_t size)
+{
+	return operator_new_blocker();
+}
+
+*/
 extern "C" void app_main()
 {
-    printf("Hello world!\n");
-
-    /* Print chip information */
-    esp_chip_info_t chip_info;
-    esp_chip_info(&chip_info);
-    printf("This is ESP32 chip with %d CPU cores, WiFi%s%s, ",
-            chip_info.cores,
-            (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
-            (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
-
-    printf("silicon revision %d, ", chip_info.revision);
-
-    printf("%dMB %s flash\n", spi_flash_get_chip_size() / (1024 * 1024),
-            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
-
-    for (int i = 10; i >= 0; i--) {
-        printf("Restarting in %d seconds...\n", i);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-    printf("Restarting now.\n");
-    fflush(stdout);
-    esp_restart();
+	Program::launch();
 }
