@@ -9,22 +9,22 @@ App::App()
 	_motorDriver.setFrequency(50.0f);
 
 	for (size_t i = 0; i < _motorDriver.channelCount(); i++)
-		_motorDriver.setRange(0, 0.52f, 2.56f);
+		_motorDriver.setRange(i, 0.52f, 2.56f);
 
-	_motorDriver.set(0, 0.5f);
+	_motorDriver.set(0, 1.0f);
+	_motorDriver.set(1, 1.0f);
+
+	_nunchuck.connect();
 }
 
 
 void App::update()
 {
-	_motorDriver.set(0, 0.0f);
-	Task::sleep(1000);
-	_motorDriver.set(1, 1.0f);
-	Task::sleep(1000);
-	_motorDriver.set(0, 1.0f);
-	Task::sleep(1000);
-	_motorDriver.set(1, 0.0f);
-	Task::sleep(1000);
+	_nunchuck.poll();
+
+	std::cout << "JOY: " << _nunchuck.joystick().x << " " << _nunchuck.joystick().y << std::endl;
+	_motorDriver.set(0, _nunchuck.joystick().x);
+	_motorDriver.set(1, _nunchuck.joystick().y);
 }
 
 
