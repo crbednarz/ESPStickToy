@@ -13,6 +13,6 @@ public:
 	void stop();
 
 private:
-	PCA9685 _motorDriver;
-	Nunchuck _nunchuck;
+	esc::PCA9685 _motorDriver;
+	esc::Nunchuck _nunchuck;
 };

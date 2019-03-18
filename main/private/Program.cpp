@@ -11,6 +11,7 @@
 
 void Program::launch()
 {
+	using namespace esc;
 	I2CDevice::initialize();
 
 	Stopwatch stopwatch;
